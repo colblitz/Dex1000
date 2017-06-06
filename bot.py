@@ -38,7 +38,11 @@ class MessageThread(RedditThread):
 		reddit = self.setupReddit()
 		while 1:
 			try:
-				self.tPrint("running")
+
+				for item in reddit.inbox.unread(limit=None):
+					if isinstance(item, praw.models.Message):
+						self.tPrint(vars(item))
+
 				time.sleep(1)
 			except Exception as e:
 				traceback.print_exc()
