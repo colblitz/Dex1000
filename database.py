@@ -64,8 +64,13 @@ def postExists(postId):
 def getLastClanPostDate(clanCode):
 	return query_db("SELECT MAX(date) FROM posts WHERE clanCode = ?", (clanCode,))[0][0]
 
+def clanExists(clanCode):
+	if query_db("SELECT clanCode FROM clans WHERE clanCode = ?", (clanCode,)):
+		return True
+	return False
+
 def insertClan(clanCode):
-	get_db().cursor().execute("INSERT INTO clans(clanCode) VALUES (?)", (clanCode,))
+	get_db().cursor().execute("INSERT OR IGNORE INTO clans(clanCode) VALUES (?)", (clanCode,))
 	get_db().commit()
 
 def updateClan(clanCode, args={}):
