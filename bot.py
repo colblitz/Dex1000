@@ -34,16 +34,27 @@ class RedditThread(threading.Thread):
 		except Exception as e:
 			self.tPrint("Error setting up Reddit: " + str(e))
 
+def process_message(message):
+	## do stuff
+	 # {'first_message': None, 'first_message_name': None, '_info_params': {},
+	 # 'subreddit': None, 'likes': None, 'replies': [], 'id': u'8i6d9a',
+	 # 'subject': u'asdf', 'was_comment': False, 'score': 0, '_fetched': True,
+	 # 'author': Redditor(name='colblitz'), 'num_comments': None, 'parent_id': None,
+	 # 'subreddit_name_prefixed': None, 'new': True, 'body': u'geage',
+	 # 'dest': Redditor(name='Dex-1000'), 'body_html': u'<!-- SC_OFF --><div class="md"><p>geage</p>\n</div><!-- SC_ON -->',
+	 # '_reddit': <praw.reddit.Reddit object at 0x10616e5d0>, 'name': u't4_8i6d9a',
+	 # 'created': 1496733054.0, 'created_utc': 1496704254.0, 'context': u'', 'distinguished': None}
+
+	message.mark_read()
+
 class MessageThread(RedditThread):
 	def run(self):
 		reddit = self.setupReddit()
 		while 1:
 			try:
-
 				for item in reddit.inbox.unread(limit=None):
 					if isinstance(item, praw.models.Message):
-						self.tPrint(vars(item))
-
+						process_message(item)
 				time.sleep(1)
 			except Exception as e:
 				traceback.print_exc()
