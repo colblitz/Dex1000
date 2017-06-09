@@ -6,6 +6,7 @@ DATABASE = config.databaseFile
 INIT_SCRIPT = """
 DROP TABLE IF EXISTS clans;
 DROP TABLE IF EXISTS posts;
+DROP TABLE IF EXISTS messages;
 DROP TABLE IF EXISTS clanPosters;
 
 CREATE TABLE clans (
@@ -23,6 +24,11 @@ CREATE TABLE posts (
 	postId text primary key not null,
 	date integer,
 	clanCode text
+);
+CREATE TABLE messages (
+	messageId text primary key not null,
+	date integer,
+	read integer
 );
 CREATE TABLE clanPosters (
 	clanCode text,
@@ -63,6 +69,14 @@ def postExists(postId):
 
 def getLastClanPostDate(clanCode):
 	return query_db("SELECT MAX(date) FROM posts WHERE clanCode = ?", (clanCode,))[0][0]
+
+def insertMessage(messageId, date):
+	get_db().cursor().execute("INSERT INTO messages VALUES (?, ?)", (messageId, date))
+	get_db().commit()
+
+def markMessage(messageId, read):
+	get_db().cursor().execute("UPDATE messages SET read = ? WHERE messageId = ?", (read, messageId))
+	get_db().commit()
 
 def clanExists(clanCode):
 	if query_db("SELECT clanCode FROM clans WHERE clanCode = ?", (clanCode,)):

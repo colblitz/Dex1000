@@ -34,27 +34,85 @@ class RedditThread(threading.Thread):
 		except Exception as e:
 			self.tPrint("Error setting up Reddit: " + str(e))
 
+BAD_MESSAGE_TEMPLATE = '''
+{}
+
+Go to []() for formatting and examples.
+
+---
+
+^^Beep ^^boop, ^^I'm ^^a ^^TapTitans2 ^^bot! ^^\([Github](https://github.com/colblitz/Dex1000)) ^^Please ^^PM ^^/u/colblitz ^^with ^^any ^^questions.
+'''
+
+CLAN_FIELDS = {
+	'clanquest': 'clanQuest',
+	'openpositions': 'openPositions',
+	'rank': 'rank',
+	'name': 'name',
+	'redditcontact': 'redditContact',
+	'othercontact': 'otherContact',
+	'requirements': 'requirements',
+	'description': 'description'
+}
+CLAN_FIELDS_KEYS = list(CLAN_FIELDS.keys())
+
 def process_message(message):
 	## do stuff
-	 # {'first_message': None, 'first_message_name': None, '_info_params': {},
-	 # 'subreddit': None, 'likes': None, 'replies': [], 'id': u'8i6d9a',
-	 # 'subject': u'asdf', 'was_comment': False, 'score': 0, '_fetched': True,
-	 # 'author': Redditor(name='colblitz'), 'num_comments': None, 'parent_id': None,
-	 # 'subreddit_name_prefixed': None, 'new': True, 'body': u'geage',
-	 # 'dest': Redditor(name='Dex-1000'), 'body_html': u'<!-- SC_OFF --><div class="md"><p>geage</p>\n</div><!-- SC_ON -->',
-	 # '_reddit': <praw.reddit.Reddit object at 0x10616e5d0>, 'name': u't4_8i6d9a',
-	 # 'created': 1496733054.0, 'created_utc': 1496704254.0, 'context': u'', 'distinguished': None}
+	subject = message.subject.lower()
+	author = message.author.lower()
+	body = message.body.lower()
 
-	message.mark_read()
+	if subject == "username mention":
+		pass
+	if "update" in subject:
+		m = re.compile('\[(\w+)\]').match(subject)
+		if m:
+			clanCode = m.group(1)
+			## TODO: check author
+			## get fields
+			updateValues = {}
+			for line in body.split('\n'):
+				parts = line.split('|')
+				key = parts[0].strip().lower()
+				if key in CLAN_FIELDS_KEYS:
+					updateValues[CLAN_FIELDS[key]] = '|'.join(parts[1:])
+			if updateValues:
+				try:
+					database.updateClan(clanCode, updateValues)
+					message.reply("Update successful")
+					## TODO: update wiki
+				except Exception as e:
+					print "Error updating clan {} with values {}".format(clanCode, str(updateValues))
+			else:
+				## could not get any update values
+				message.reply(BAD_MESSAGE_TEMPLATE.format("Could not parse update values"))
+		else:
+			## could not find clan code, error
+			message.reply(BAD_MESSAGE_TEMPLATE.format("Could not parse clan code"))
+		message.mark_read()
+		markMessage(message.id, True)
+
+
+	# {'first_message': None, 'first_message_name': None, '_info_params': {},
+	# 'subreddit': None, 'likes': None, 'replies': [], 'id': u'8i6d9a',
+	# 'subject': u'asdf', 'was_comment': False, 'score': 0, '_fetched': True,
+	# 'author': Redditor(name='colblitz'), 'num_comments': None, 'parent_id': None,
+	# 'subreddit_name_prefixed': None, 'new': True, 'body': u'geage',
+	# 'dest': Redditor(name='Dex-1000'), 'body_html': u'<!-- SC_OFF --><div class="md"><p>geage</p>\n</div><!-- SC_ON -->',
+	# '_reddit': <praw.reddit.Reddit object at 0x10616e5d0>, 'name': u't4_8i6d9a',
+	# 'created': 1496733054.0, 'created_utc': 1496704254.0, 'context': u'', 'distinguished': None}
 
 class MessageThread(RedditThread):
 	def run(self):
 		reddit = self.setupReddit()
 		while 1:
 			try:
-				for item in reddit.inbox.unread(limit=None):
-					if isinstance(item, praw.models.Message):
-						process_message(item)
+				for item in reddit.inbox.stream():
+					print vars(item)
+					process_message(item)
+				# for item in reddit.inbox.unread(limit=None):
+				# 	if isinstance(item, praw.models.Message):
+				# 		process_message(item)
 				time.sleep(1)
 			except Exception as e:
 				traceback.print_exc()
@@ -64,12 +122,12 @@ class CommentThread(RedditThread):
 		reddit = self.setupReddit()
 		while 1:
 			try:
-				self.tPrint("running")
-				time.sleep(1)
+				self.tPrint("Running")
+				time.sleep(10)
 			except Exception as e:
 				traceback.print_exc()
 
-REPLY_TEMPLATE = '''
+POST_REPLY_TEMPLATE = '''
 {}
 
 Recruitment posts should follow the following rules:
@@ -100,11 +158,11 @@ def process_submission(submission):
 
 	print "isPotentialClanPost: " + str(isPotentialClanPost)
 
-	m = re.compile('\[clan recruitment - \w+\].*').match(submission.title.lower())
+	m = re.compile('\[clan recruitment - (\w+)\].*').match(submission.title.lower())
 	if isPotentialClanPost and not m:
 		print "bad formatting"
 		## Clan post with bad formatting
-		reply = REPLY_TEMPLATE.format(POST_TITLE_FORMATTING)
+		reply = POST_REPLY_TEMPLATE.format(POST_TITLE_FORMATTING)
 		submission.reply(reply)
 		submission.delete()
 		return
@@ -117,7 +175,7 @@ def process_submission(submission):
 		if lastPost and timeSinceLastPost < 1000:
 			print "too soon"
 			## Posting again too soon
-			reply = REPLY_TEMPLATE.format(TOO_SOON.format(formatTime(timeSinceLastPost), clanCode))
+			reply = POST_REPLY_TEMPLATE.format(TOO_SOON.format(formatTime(timeSinceLastPost), clanCode))
 			submission.reply(reply)
 			submission.delete()
 			return
