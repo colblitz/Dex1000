@@ -116,8 +116,14 @@ class MessageThread(RedditThread):
 		subject = message.subject.lower()
 		if subject == "username mention":
 			self.tPrint(' - Username mention')
-			pass
-		if "update" in subject:
+		elif "add clan" in subject:
+			self.tPrint(' - Add clan request')
+			m = re.compile('.*\[(\w+)\].*').match(subject)
+			if m:
+				clanCode = m.group(1)
+				database.insertClan(self.db, clanCode)
+				message.reply("Clan added successfully")
+		elif "update" in subject:
 			self.tPrint(' - Update request')
 			m = re.compile('.*\[(\w+)\].*').match(subject)
 			if m:
