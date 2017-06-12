@@ -24,6 +24,7 @@ class RedditThread(threading.Thread):
 	def tPrint(self, s):
 		t = time.strftime("%H:%M:%S", time.gmtime())
 		sys.stdout.write("[{} {:17}] {}\n".format(t, self.getName(), s))
+		sys.stdout.flush()
 
 	def setupReddit(self):
 		try:
