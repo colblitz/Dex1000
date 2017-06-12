@@ -15,7 +15,12 @@ REDDITAPPID        = config.redditAppId
 REDDITAPPSECRET    = config.redditAppSecret
 REDDITREFRESHTOKEN = config.redditRefreshToken
 
+DATABASE = config.databaseFile
+
 class RedditThread(threading.Thread):
+	reddit = None
+	db = None
+
 	def tPrint(self, s):
 		t = time.strftime("%H:%M:%S", time.gmtime())
 		sys.stdout.write("[{} {:17}] {}\n".format(t, self.getName(), s))
@@ -70,7 +75,7 @@ Clan Name | Code | Rank | CQ | Open | Reddit Contact | Other Contact | Requireme
 '''
 CLAN_DIRECTORY_ROW = "{} | {} | {} | {} | {} | {} | {} | {} | {} \n"
 
-SUBREDDIT = 'taptitanstest'
+SUBREDDIT = 'TapTitans2'
 
 class MessageThread(RedditThread):
 	def logMessage(self, message):
@@ -79,15 +84,15 @@ class MessageThread(RedditThread):
 			message.author,
 			message.subject))
 
-	def updateWiki(self, reddit):
+	def updateWiki(self):
 		self.tPrint("Attempt to update wiki")
-		cd = reddit.subreddit(SUBREDDIT).wiki['clan_directory']
+		cd = self.reddit.subreddit(SUBREDDIT).wiki['clan_directory']
 		currentPage = cd.content_md
 		try:
 			start = currentPage.index(CLAN_DIRECTORY_TAG)
 
 			## TODO: clean this up, add /u/ for reddit names?
-			clanInfo = database.getClanInformation()
+			clanInfo = database.getClanInformation(self.db)
 			rearranged = [[i[4], i[0], i[3], i[1], i[2], i[5], i[6], i[7], i[8]] for i in clanInfo]
 			cleaned = [['' if v is None else v for v in i] for i in rearranged]
 			rows = [CLAN_DIRECTORY_ROW.format(*i) for i in cleaned]
@@ -102,17 +107,17 @@ class MessageThread(RedditThread):
 		except Exception as e:
 			pass
 
-	def processMessage(self, reddit, message):
-		if database.messageExists(message.id):
+	def processMessage(self, message):
+		if database.messageExists(self.db, message.id):
 			return
 		self.logMessage(message)
 
 		subject = message.subject.lower()
 		if subject == "username mention":
-			self.tPrint('username mention')
+			self.tPrint(' - Username mention')
 			pass
 		if "update" in subject:
-			self.tPrint('Update request')
+			self.tPrint(' - Update request')
 			m = re.compile('.*\[(\w+)\].*').match(subject)
 			if m:
 				clanCode = m.group(1)
@@ -131,13 +136,13 @@ class MessageThread(RedditThread):
 							updateValues[CLAN_FIELDS[key]] = int('|'.join(parts[1:]))
 				if updateValues:
 					try:
-						self.tPrint(updateValues)
-						database.updateClan(clanCode, updateValues)
+						self.tPrint(" - " + str(updateValues))
+						database.updateClan(self.db, clanCode, updateValues)
 						message.reply("Update successful")
-						self.tPrint('Update successful')
+						self.tPrint(' - Update successful')
 					except Exception as e:
-						self.tPrint("Error updating clan {} with values {}".format(clanCode, str(updateValues)))
-					self.updateWiki(reddit)
+						self.tPrint(" - Error updating clan {} with values {}".format(clanCode, str(updateValues)))
+					self.updateWiki()
 				else:
 					## could not get any update values
 					message.reply(BAD_MESSAGE_TEMPLATE.format("Could not parse any update values"))
@@ -145,20 +150,22 @@ class MessageThread(RedditThread):
 				## Could not find clan code, error
 				message.reply(BAD_MESSAGE_TEMPLATE.format("Could not parse clan code"))
 			message.mark_read()
-			database.markMessage(message.id, True)
+			database.markMessage(self.db, message.id, True)
 
 	def run(self):
-		reddit = self.setupReddit()
+		self.reddit = self.setupReddit()
+		self.db = database.get_db(DATABASE)
 		while 1:
 			try:
-				for item in reddit.inbox.stream():
-					self.processMessage(reddit, item)
+				for item in self.reddit.inbox.stream():
+					self.processMessage(item)
 				# for item in reddit.inbox.unread(limit=None):
 				# 	if isinstance(item, praw.models.Message):
 				# 		process_message(item)
-				time.sleep(1)
 			except Exception as e:
+				self.tPrint("Error: " + str(e))
 				traceback.print_exc()
+				time.sleep(10)
 
 class CommentThread(RedditThread):
 	def logComment(self, comment):
@@ -168,14 +175,17 @@ class CommentThread(RedditThread):
 		pass
 
 	def run(self):
-		reddit = self.setupReddit()
+		self.reddit = self.setupReddit()
+		self.db = database.get_db(DATABASE)
 		while 1:
 			try:
-				subreddit = reddit.subreddit(SUBREDDIT)
+				subreddit = self.reddit.subreddit(SUBREDDIT)
 				for comment in subreddit.stream.comments():
 					self.processComment(comment)
 			except Exception as e:
+				self.tPrint("Error: " + str(e))
 				traceback.print_exc()
+				time.sleep(10)
 
 POST_REPLY_TEMPLATE = '''
 {}
@@ -192,7 +202,7 @@ Recruitment posts should follow the following rules:
 '''
 
 POST_TITLE_FORMATTING = "This post is being removed for being a recruitment post without the proper formatting."
-TOO_SOON = "This post is being removed for violating rule 3. It has only been {}, please wait {} before posting another recruitment post for clan {}"
+TOO_SOON = "This post is being removed for violating rule 3. Please wait {} or for {} more posts before posting another recruitment post for clan {}"
 # CLAN_POST_DELAY = 60*60*24*4
 CLAN_POST_DELAY = 60*5
 
@@ -213,54 +223,66 @@ class SubmissionThread(RedditThread):
 			submission.title.encode('utf-8')))
 
 	def processSubmission(self, submission):
-		if database.postExists(submission.id):
+		if database.postExists(self.db, submission.id):
 			return
 		self.logSubmission(submission)
 
-		## TODO: make this better
-		isPotentialClanPost = any(w in submission.title.lower() for w in ['clan', 'recruit'])
+		if int(submission.created_utc) < 1497163543:
+			database.insertPost(self.db, submission.id, int(submission.created_utc))
+			return
 
-		m = re.compile('\[clan recruitment - (\w+)\].*').match(submission.title.lower())
+		## TODO: make this better
+		isPotentialClanPost = all(w in submission.title.lower() for w in ['clan', 'recruit'])
+
+
+		m = re.compile('\[clan recruitment\s*-\s*(.+)\s*\].*').match(submission.title.lower())
 		## Clan post with bad formatting
 		if isPotentialClanPost and not m:
-			self.tPrint("Bad formatting")
+			self.tPrint(" - Bad formatting")
 			reply = POST_REPLY_TEMPLATE.format(POST_TITLE_FORMATTING)
-			submission.reply(reply)
-			submission.mod.remove()
+			# submission.reply(reply)
+			# submission.mod.remove()
 			return
 
 		if m:
-			clanCode = m.group(1)
+			clanCodes = m.group(1)
 			postDate = int(submission.created_utc)
-			lastPostDate = database.getLastClanPostDate(clanCode)
-			timeSinceLastPost = postDate - lastPostDate if lastPostDate else sys.maxint
-			self.tPrint("{} timeSinceLastPost: {}".format(clanCode, timeSinceLastPost))
+			for clanCode in re.findall('(\w+)', clanCodes):
+				lastPost = database.getLastClanPost(self.db, clanCode)
+				timeSinceLastPost = postDate - lastPost[0] if lastPost[0] else sys.maxint
+				postsSinceLastPost = database.getPostsSince(self.db, lastPost[1]) if lastPost[1] else sys.maxint
+				self.tPrint(" - {} timeSinceLastPost: {} postsSinceLastPost {}".format(clanCode, timeSinceLastPost, postsSinceLastPost))
 
-			## Check for posting too soon
-			if lastPostDate and timeSinceLastPost > 0 and timeSinceLastPost < CLAN_POST_DELAY:
-				self.tPrint("Posting too soon")
-				reply = POST_REPLY_TEMPLATE.format(TOO_SOON.format(
-					formatTime(timeSinceLastPost),
-					formatTime(CLAN_POST_DELAY - timeSinceLastPost),
-					clanCode))
-				submission.reply(reply)
-				submission.mod.remove()
-				return
+				## Check for posting too soon
+				if (lastPost and
+					timeSinceLastPost > 0 and timeSinceLastPost < CLAN_POST_DELAY and
+					postsSinceLastPost < 100):
+					self.tPrint(" - Posting too soon")
+					reply = POST_REPLY_TEMPLATE.format(TOO_SOON.format(
+						formatTime(CLAN_POST_DELAY - timeSinceLastPost),
+						100 - postsSinceLastPost,
+						clanCode))
+					# submission.reply(reply)
+					# submission.mod.remove()
+					return
 
-			self.tPrint("Inserting clan " + clanCode)
-			database.insertClan(clanCode)
+				self.tPrint(" - Inserting clan " + clanCode)
+				database.insertClan(self.db, clanCode)
 
-		database.insertPost(submission.id, postDate, clanCode)
+		database.insertPost(self.db, submission.id, int(submission.created_utc), m.group(1) if m else None)
 
 	def run(self):
-		reddit = self.setupReddit()
+		self.reddit = self.setupReddit()
+		self.db = database.get_db(DATABASE)
 		while 1:
 			try:
-				subreddit = reddit.subreddit(SUBREDDIT)
+				subreddit = self.reddit.subreddit(SUBREDDIT)
 				for submission in subreddit.stream.submissions():
 					self.processSubmission(submission)
 			except Exception as e:
+				self.tPrint("Error: " + str(e))
 				traceback.print_exc()
+				time.sleep(10)
 
 if __name__ == '__main__':
 	messageThread = MessageThread(name="MessageThread")
