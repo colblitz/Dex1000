@@ -193,16 +193,16 @@ POST_REPLY_TEMPLATE = '''
 
 Recruitment posts should follow the following rules:
 
-1. Clan Recruitment Posts must be flaired accordingly by using the "Clan" flair.
-2. The title of the post must begin with: "[Clan Recruitment - clancode]"
-3. Over 72 hours have passed since your clan's last recruitment post.
+1. The title of the post must begin with: "[Clan Recruitment - clancode]". For example, "[Clan Recruitment - 2j8ei] Recruiting for Test Clan!" would be an acceptable title.
+2. Clan Recruitment Posts must be flaired accordingly by using the "Clan" flair.
+3. Over 100 posts on the subreddit have been submitted or 72 hours have passed since your last recruitment post.
 
 ---
 
 ^^Beep ^^boop, ^^I'm ^^a ^^TapTitans2 ^^bot! ^^\([Github](https://github.com/colblitz/Dex1000)) ^^Please ^^PM ^^/u/colblitz ^^with ^^any ^^questions.
 '''
 
-POST_TITLE_FORMATTING = "This post is being removed for being a recruitment post without the proper formatting."
+POST_TITLE_FORMATTING = "This post is being removed for being a recruitment post without the proper formatting. If this is not a recruitment post, please pm /u/colblitz."
 TOO_SOON = "This post is being removed for violating rule 3. Please wait {} or for {} more posts before posting another recruitment post for clan {}"
 # CLAN_POST_DELAY = 60*60*24*4
 CLAN_POST_DELAY = 60*5
@@ -233,16 +233,15 @@ class SubmissionThread(RedditThread):
 			return
 
 		## TODO: make this better
-		isPotentialClanPost = all(w in submission.title.lower() for w in ['clan', 'recruit'])
-
+		isPotentialClanPost = all(w in submission.title.lower() for w in ['recruit'])
 
 		m = re.compile('\[clan recruitment\s*-\s*(.+)\s*\].*').match(submission.title.lower())
 		## Clan post with bad formatting
 		if isPotentialClanPost and not m:
 			self.tPrint(" - Bad formatting")
 			reply = POST_REPLY_TEMPLATE.format(POST_TITLE_FORMATTING)
-			# submission.reply(reply)
-			# submission.mod.remove()
+			submission.reply(reply)
+			submission.mod.remove()
 			return
 
 		if m:
@@ -263,8 +262,8 @@ class SubmissionThread(RedditThread):
 						formatTime(CLAN_POST_DELAY - timeSinceLastPost),
 						100 - postsSinceLastPost,
 						clanCode))
-					# submission.reply(reply)
-					# submission.mod.remove()
+					submission.reply(reply)
+					submission.mod.remove()
 					return
 
 				self.tPrint(" - Inserting clan " + clanCode)
