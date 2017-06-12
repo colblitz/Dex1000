@@ -1,4 +1,5 @@
 import sqlite3
+import os
 
 import config
 
@@ -38,12 +39,12 @@ CREATE TABLE clanPosters (
 
 # db = None
 
-
+cwd = os.path.dirname(os.path.abspath(__file__))
 
 def get_db(database):
 	# global db
 	# if db is None:
-	db = sqlite3.connect(database)
+	db = sqlite3.connect(cwd + "/" + database)
 	db.row_factory = sqlite3.Row
 	return db
 
