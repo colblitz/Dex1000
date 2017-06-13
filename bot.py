@@ -91,16 +91,16 @@ class MessageThread(RedditThread):
 		self.tPrint(" - Attempt to update wiki")
 		cd = self.reddit.subreddit(SUBREDDIT).wiki['clan_directory']
 		self.tPrint(" - Got wiki")
-		currentPage = cd.content_md
+		currentPage = unicde(cd.content_md)
 		try:
 			start = currentPage.index(CLAN_DIRECTORY_TAG)
 
 			## TODO: clean this up, add /u/ for reddit names?
 			clanInfo = database.getClanInformation(self.db)
 			rearranged = [[i[4], i[0], i[3], i[1], i[2], i[5], i[6], i[7], i[8]] for i in clanInfo]
-			cleaned = [['' if v is None else v for v in i] for i in rearranged]
+			cleaned = [['' if v is None else unicode(v) for v in i] for i in rearranged]
 			rows = [CLAN_DIRECTORY_ROW.format(*i) for i in cleaned]
-			newDirectory = CLAN_DIRECTORY.format(''.join(rows))
+			newDirectory = CLAN_DIRECTORY.format(unicode(''.join(rows))
 
 			newPage = currentPage[:start] + CLAN_DIRECTORY_TAG + newDirectory
 			cd.edit(newPage)
