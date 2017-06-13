@@ -212,8 +212,7 @@ Recruitment posts should follow the following rules:
 
 POST_TITLE_FORMATTING = "This post is being removed for being a recruitment post without the proper formatting. If this is not a recruitment post, please pm /u/colblitz."
 TOO_SOON = "This post is being removed for violating rule 3. Please wait {} or for {} more posts before posting another recruitment post for clan {}"
-# CLAN_POST_DELAY = 60*60*24*4
-CLAN_POST_DELAY = 60*5
+CLAN_POST_DELAY = 60*60*24*4
 
 def formatTime(t):
 	if t < 60:
