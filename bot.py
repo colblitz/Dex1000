@@ -158,6 +158,7 @@ class MessageThread(RedditThread):
 							# message.reply("Something went wrong - please try again later or PM /u/colblitz")
 					except Exception as e:
 						self.tPrint(" - Error updating clan {} with values {}".format(clanCode, str(updateValues)))
+						self.tPrint(e)
 
 				else:
 					## could not get any update values
