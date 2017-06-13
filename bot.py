@@ -91,7 +91,7 @@ class MessageThread(RedditThread):
 		self.tPrint(" - Attempt to update wiki")
 		cd = self.reddit.subreddit(SUBREDDIT).wiki['clan_directory']
 		self.tPrint(" - Got wiki")
-		currentPage = unicde(cd.content_md)
+		currentPage = unicode(cd.content_md)
 		try:
 			start = currentPage.index(CLAN_DIRECTORY_TAG)
 
