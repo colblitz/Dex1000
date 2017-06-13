@@ -100,7 +100,7 @@ class MessageThread(RedditThread):
 			rearranged = [[i[4], i[0], i[3], i[1], i[2], i[5], i[6], i[7], i[8]] for i in clanInfo]
 			cleaned = [['' if v is None else unicode(v) for v in i] for i in rearranged]
 			rows = [CLAN_DIRECTORY_ROW.format(*i) for i in cleaned]
-			newDirectory = CLAN_DIRECTORY.format(unicode(''.join(rows))
+			newDirectory = CLAN_DIRECTORY.format(unicode(''.join(rows)))
 
 			newPage = currentPage[:start] + CLAN_DIRECTORY_TAG + newDirectory
 			cd.edit(newPage)
