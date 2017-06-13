@@ -217,6 +217,7 @@ http://www.reddit.com/message/compose?to=Dex-1000&subject=update%20%5BREPLACECLA
 ''' + SIGNATURE
 
 POST_TITLE_FORMATTING = "This post is being removed for being a recruitment post without the proper formatting. If this is not a recruitment post, please pm /u/colblitz."
+NO_CLAN_CODE = "This post is being removed for being a recruitment post without the proper formatting (could not find the clan code inside the brackets!). If this is not a recruitment post, please pm /u/colblitz."
 TOO_SOON = "This post is being removed for violating rule 3. Please wait {} or for {} more posts before posting another recruitment post for clan {}"
 CLAN_POST_DELAY = 60*60*24*4
 
@@ -254,16 +255,24 @@ class SubmissionThread(RedditThread):
 		## Clan post with bad formatting
 		if isPotentialClanPost and not m:
 			self.tPrint(" - Bad formatting")
-			reply = POST_REPLY_TEMPLATE.format(POST_TITLE_FORMATTING)
+			reply = POST_REPLY_TEMPLATE.format(NO_CLAN_CODE)
 			submission.reply(reply)
 			submission.mod.remove()
 			return
 
 		if m:
-			clanCodes = m.group(1)
+			clanCodeString = m.group(1)
 			postDate = int(submission.created_utc)
 			## TODO: are clan codes 5 characters long
-			for clanCode in re.findall('\W(\w{5})\W', clanCodes):
+			clanCodes = re.findall('\W(\w{5})\W', clanCodeString)
+			if len(clanCodes) == 0:
+				self.tPrint(" - No clan code")
+				reply = POST_REPLY_TEMPLATE.format(POST_TITLE_FORMATTING)
+				submission.reply(reply)
+				submission.mod.remove()
+				return
+
+			for clanCode in clanCodes:
 				lastPost = database.getLastClanPost(self.db, clanCode)
 				timeSinceLastPost = postDate - lastPost[0] if lastPost[0] else sys.maxint
 				postsSinceLastPost = database.getPostsSince(self.db, lastPost[1]) if lastPost[1] else sys.maxint
