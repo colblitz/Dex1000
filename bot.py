@@ -277,7 +277,7 @@ class SubmissionThread(RedditThread):
 			clanCodeString = m.group(1)
 			postDate = int(submission.created_utc)
 			## TODO: are clan codes 5 characters long
-			clanCodes = re.findall('\W*(\w{5})\W*', clanCodeString)
+			clanCodes = re.findall('\W*(\w{5,6})\W*', clanCodeString)
 			if len(clanCodes) == 0:
 				self.tPrint(" - No clan code")
 				reply = POST_REPLY_TEMPLATE.format(POST_TITLE_FORMATTING)
