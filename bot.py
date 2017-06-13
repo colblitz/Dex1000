@@ -136,6 +136,10 @@ class MessageThread(RedditThread):
 				## TODO: check author
 				# author = message.author.name.lower()
 
+				## TODO: do something about this
+				if not database.clanExists(self.db, clanCode):
+					database.insertClan(self.db, clanCode)
+
 				## get fields
 				updateValues = {}
 				for line in message.body.split('\n'):
