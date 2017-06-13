@@ -133,7 +133,7 @@ class MessageThread(RedditThread):
 
 				## get fields
 				updateValues = {}
-				for line in message.body.lower().split('\n'):
+				for line in message.body.split('\n'):
 					parts = line.split('|')
 					key = parts[0].strip().lower()
 					## TODO: make this better - individual regexes?
