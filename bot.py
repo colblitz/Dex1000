@@ -141,12 +141,12 @@ class MessageThread(RedditThread):
 					key = parts[0].strip().lower()
 					## TODO: make this better - individual regexes?
 					if key in CLAN_FIELDS_KEYS:
-						updateValues[CLAN_FIELDS[key]] = str('|'.join(parts[1:]))
+						updateValues[CLAN_FIELDS[key]] = unicode('|'.join(parts[1:]))
 						if key in INT_FIELDS:
 							updateValues[CLAN_FIELDS[key]] = int('|'.join(parts[1:]))
 				if updateValues:
 					try:
-						self.tPrint(" - " + str(updateValues))
+						self.tPrint(" - " + unicode(updateValues))
 						database.updateClan(self.db, clanCode, updateValues)
 						message.reply("Update successful")
 						self.tPrint(' - Update successful')
