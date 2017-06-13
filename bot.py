@@ -86,7 +86,7 @@ class MessageThread(RedditThread):
 			message.subject))
 
 	def updateWiki(self):
-		self.tPrint("Attempt to update wiki")
+		self.tPrint(" - Attempt to update wiki")
 		cd = self.reddit.subreddit(SUBREDDIT).wiki['clan_directory']
 		currentPage = cd.content_md
 		try:
@@ -101,7 +101,7 @@ class MessageThread(RedditThread):
 
 			newPage = currentPage[:start] + CLAN_DIRECTORY_TAG + newDirectory
 			cd.edit(newPage)
-			self.tPrint("Wiki update successful")
+			self.tPrint(" - Wiki update successful")
 		except ValueError:
 			## TODO: Not found, PM colblitz
 			pass
@@ -163,6 +163,7 @@ class MessageThread(RedditThread):
 		self.reddit = self.setupReddit()
 		self.db = database.get_db(DATABASE)
 		while 1:
+			self.tPrint("Start of loop")
 			try:
 				for item in self.reddit.inbox.stream():
 					self.processMessage(item)
@@ -185,6 +186,7 @@ class CommentThread(RedditThread):
 		self.reddit = self.setupReddit()
 		self.db = database.get_db(DATABASE)
 		while 1:
+			self.tPrint("Start of loop")
 			try:
 				subreddit = self.reddit.subreddit(SUBREDDIT)
 				for comment in subreddit.stream.comments():
@@ -239,7 +241,9 @@ class SubmissionThread(RedditThread):
 			return
 
 		## TODO: make this better
-		isPotentialClanPost = all(w in submission.title.lower() for w in ['recruit'])
+		title = submission.title.lower()
+		isPotentialClanPost = sum([w in title for w in ['clan', 'recruit', 'cq']]) > 1
+		# isPotentialClanPost = all(w in submission.title.lower() for w in ['recruit'])
 
 		m = re.compile('\[clan recruitment\s*-\s*(.+)\s*\].*').match(submission.title.lower())
 		## Clan post with bad formatting
@@ -281,6 +285,7 @@ class SubmissionThread(RedditThread):
 		self.reddit = self.setupReddit()
 		self.db = database.get_db(DATABASE)
 		while 1:
+			self.tPrint("Start of loop")
 			try:
 				subreddit = self.reddit.subreddit(SUBREDDIT)
 				for submission in subreddit.stream.submissions():
