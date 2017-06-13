@@ -262,7 +262,8 @@ class SubmissionThread(RedditThread):
 		if m:
 			clanCodes = m.group(1)
 			postDate = int(submission.created_utc)
-			for clanCode in re.findall('(\w+)', clanCodes):
+			## TODO: are clan codes 5 characters long
+			for clanCode in re.findall('\W(\w{5})\W', clanCodes):
 				lastPost = database.getLastClanPost(self.db, clanCode)
 				timeSinceLastPost = postDate - lastPost[0] if lastPost[0] else sys.maxint
 				postsSinceLastPost = database.getPostsSince(self.db, lastPost[1]) if lastPost[1] else sys.maxint
@@ -283,7 +284,7 @@ class SubmissionThread(RedditThread):
 
 				self.tPrint(" - Inserting clan " + clanCode)
 				database.insertClan(self.db, clanCode)
-				submission.reply(GOOD_REPLY_TEMPLATE)
+			submission.reply(GOOD_REPLY_TEMPLATE)
 
 		database.insertPost(self.db, submission.id, int(submission.created_utc), m.group(1) if m else None)
 
