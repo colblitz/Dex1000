@@ -106,11 +106,13 @@ class MessageThread(RedditThread):
 			newPage = currentPage[:start] + CLAN_DIRECTORY_TAG + newDirectory
 			cd.edit(newPage)
 			self.tPrint(" - Wiki update successful")
+			return True
 		except ValueError:
-			## TODO: Not found, PM colblitz
-			pass
+			self.tPrint(" - Tag not found")
+			return False
 		except Exception as e:
-			pass
+			self.tPrint(" - Error updating wiki: " + str(e))
+			return False
 
 	def processMessage(self, message):
 		if database.messageExists(self.db, message.id):
@@ -149,11 +151,14 @@ class MessageThread(RedditThread):
 					try:
 						self.tPrint(" - " + unicode(updateValues))
 						database.updateClan(self.db, clanCode, updateValues)
-						message.reply("Update successful")
-						self.tPrint(' - Update successful')
+						if self.updateWiki():
+							message.reply("Update successful")
+							self.tPrint(' - Update successful')
+						else:
+							message.reply("Something went wrong - please try again later or PM /u/colblitz")
 					except Exception as e:
 						self.tPrint(" - Error updating clan {} with values {}".format(clanCode, str(updateValues)))
-					self.updateWiki()
+
 				else:
 					## could not get any update values
 					message.reply(BAD_MESSAGE_TEMPLATE.format("Could not parse any update values"))
