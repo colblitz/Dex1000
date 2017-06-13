@@ -40,15 +40,18 @@ class RedditThread(threading.Thread):
 		except Exception as e:
 			self.tPrint("Error setting up Reddit: " + str(e))
 
+SIGNATURE = '''
+---
+
+^^Beep ^^boop, ^^I'm ^^a ^^TapTitans2 ^^bot! ^^\([Github](https://github.com/colblitz/Dex1000)) ^^Please ^^PM ^^/u/colblitz ^^with ^^any ^^questions.
+'''
+
 BAD_MESSAGE_TEMPLATE = '''
 {}
 
 Go to []() for formatting and examples.
 
----
-
-^^Beep ^^boop, ^^I'm ^^a ^^TapTitans2 ^^bot! ^^\([Github](https://github.com/colblitz/Dex1000)) ^^Please ^^PM ^^/u/colblitz ^^with ^^any ^^questions.
-'''
+''' + SIGNATURE
 
 CLAN_FIELDS = {
 	'clanquest': 'clanQuest',
@@ -205,10 +208,13 @@ Recruitment posts should follow the following rules:
 2. Clan Recruitment Posts must be flaired accordingly by using the "Clan" flair.
 3. Over 100 posts on the subreddit have been submitted or 72 hours have passed since your last recruitment post.
 
----
+''' + SIGNATURE
 
-^^Beep ^^boop, ^^I'm ^^a ^^TapTitans2 ^^bot! ^^\([Github](https://github.com/colblitz/Dex1000)) ^^Please ^^PM ^^/u/colblitz ^^with ^^any ^^questions.
-'''
+GOOD_REPLY_TEMPLATE = '''
+This looks like a clan recruitment post - don't forget to flair your post with the "Clan" flair! Also, if you need to update your clan's information in the [Clan Directory](https://www.reddit.com/r/TapTitans2/wiki/clan_directory), send me a message with this prepopulated form (replace the clan code and remove unnecessary lines): [click](
+http://www.reddit.com/message/compose?to=Dex-1000&subject=update%20%5BREPLACECLANCODE%5D&message=clanQuest%20%7C%201%0A%0AopenPositions%20%7C%201%0A%0Arank%20%7C%201%0A%0Aname%20%7C%20Name%20of%20clan%0A%0AredditContact%20%7C%20Username%0A%0AotherContact%20%7C%20Discord%20link%20or%20something%0A%0Arequirements%20%7C%20These%20are%20a%20bunch%20of%20requirements%2C%20try%20to%20keep%20this%20to%20one%20line%0A%0Adescription%20%7C%20This%20is%20a%20description%2C%20try%20to%20keep%20this%20to%20one%20line)
+
+''' + SIGNATURE
 
 POST_TITLE_FORMATTING = "This post is being removed for being a recruitment post without the proper formatting. If this is not a recruitment post, please pm /u/colblitz."
 TOO_SOON = "This post is being removed for violating rule 3. Please wait {} or for {} more posts before posting another recruitment post for clan {}"
@@ -277,6 +283,7 @@ class SubmissionThread(RedditThread):
 
 				self.tPrint(" - Inserting clan " + clanCode)
 				database.insertClan(self.db, clanCode)
+				submission.reply(GOOD_REPLY_TEMPLATE)
 
 		database.insertPost(self.db, submission.id, int(submission.created_utc), m.group(1) if m else None)
 
