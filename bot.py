@@ -119,10 +119,20 @@ class MessageThread(RedditThread):
 		self.logMessage(message)
 
 		subject = message.subject.lower()
-		if subject == REDDITAPPID.lower():
+		if REDDITAPPID.lower() in subject:
 			self.tPrint(' - Override')
-			self.updateWiki()
-			self.tPrint(' - Update Successful')
+			if "update" in subject:
+				self.updateWiki()
+				self.tPrint(' - Update Successful')
+			if "flag" in subject:
+				submission = self.reddit.submission(id = message.body)
+				self.tPrint(' - Bad formatting for ' + submission.id)
+				reply = POST_REPLY_TEMPLATE.format(POST_TITLE_FORMATTING)
+				submission.reply(reply)
+				submission.mod.remove()
+				self.db.removePost(submission.id)
+				self.tPrint(' - Post deleted')
+
 		elif subject == "username mention":
 			self.tPrint(' - Username mention')
 		elif "add clan" in subject:

@@ -70,6 +70,10 @@ def postExists(db, postId):
 		return True
 	return False
 
+def removePost(db, postId):
+	db.cursor().execute("DELETE FROM posts WHERE postId = ?", (postId,))
+	db.commit()
+
 def getLastClanPost(db, clanCode):
 	return query_db(db, "SELECT MAX(date), postID FROM posts WHERE clanCode = ?", (clanCode,))[0]
 
