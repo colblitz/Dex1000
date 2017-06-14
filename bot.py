@@ -152,7 +152,9 @@ class MessageThread(RedditThread):
 							try:
 								updateValues[CLAN_FIELDS[key]] = int('|'.join(parts[1:]))
 							except ValueError as e:
+								self.tPrint("ValueError: " + str(e))
 								message.reply(BAD_MESSAGE_TEMPLATE.format("Please enter {} as a number".format(key)))
+								self.tPrint(" - Mark message as read")
 								message.mark_read()
 								database.markMessage(self.db, message.id, True)
 								return
@@ -166,16 +168,20 @@ class MessageThread(RedditThread):
 							self.tPrint(' - Update successful')
 						else:
 							message.reply("Something went wrong - please try again later or PM /u/colblitz")
+							self.tPrint(' - Wiki update failed')
 					except Exception as e:
 						self.tPrint(" - Error updating clan {} with values {}".format(clanCode, str(updateValues)))
 						self.tPrint(e)
 
 				else:
 					## could not get any update values
+					self.tPrint(' - Could not get any update values')
 					message.reply(BAD_MESSAGE_TEMPLATE.format("Could not parse any update values"))
 			else:
 				## Could not find clan code, error
+				self.tPrint(' - Could not parse clan code')
 				message.reply(BAD_MESSAGE_TEMPLATE.format("Could not parse clan code"))
+			self.tPrint(" - Mark message as read")
 			message.mark_read()
 			database.markMessage(self.db, message.id, True)
 
