@@ -119,7 +119,11 @@ class MessageThread(RedditThread):
 		self.logMessage(message)
 
 		subject = message.subject.lower()
-		if subject == "username mention":
+		if subject == REDDITAPPID:
+			self.tPrint(' - Override')
+			self.updateWiki()
+			self.tPrint(' - Update Successful')
+		elif subject == "username mention":
 			self.tPrint(' - Username mention')
 		elif "add clan" in subject:
 			self.tPrint(' - Add clan request')
