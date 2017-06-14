@@ -49,7 +49,7 @@ SIGNATURE = '''
 BAD_MESSAGE_TEMPLATE = '''
 {}
 
-Go to []() for formatting and examples.
+Go to [this page](https://www.reddit.com/r/TapTitans2/wiki/dex1000bot) for formatting and examples.
 
 ''' + SIGNATURE
 
