@@ -22,7 +22,7 @@ CREATE TABLE clans (
 	description text
 );
 CREATE TABLE posts (
-	postId text primary key not null,
+	postId text not null,
 	date integer,
 	clanCode text
 );
@@ -60,9 +60,9 @@ def init_db(database):
 
 def insertPost(db, postId, date, clanCode = None):
 	if clanCode:
-		db.cursor().execute("INSERT OR REPLACE INTO posts VALUES (?, ?, ?)", (postId, date, clanCode))
+		db.cursor().execute("INSERT INTO posts VALUES (?, ?, ?)", (postId, date, clanCode))
 	else:
-		db.cursor().execute("INSERT OR REPLACE INTO posts(postId, date) VALUES (?, ?)", (postId, date))
+		db.cursor().execute("INSERT INTO posts(postId, date) VALUES (?, ?)", (postId, date))
 	db.commit()
 
 def postExists(db, postId):
@@ -111,7 +111,7 @@ def updateClan(db, clanCode, args={}):
 	db.commit()
 
 def getClanInformation(db):
-	return query_db(db, "SELECT * FROM clans ORDER BY clanQuest DESC")
+	return query_db(db, "SELECT * FROM clans WHERE name IS NOT NULL ORDER BY clanQuest DESC")
 
 def insertClanPoster(db, clanCode, username):
 	db.cursor().execute("INSERT INTO clanPosters VALUES (?, ?)", (clanCode, username))

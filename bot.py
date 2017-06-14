@@ -277,7 +277,7 @@ class SubmissionThread(RedditThread):
 		isPotentialClanPost = sum([w in title for w in ['clan', 'recruit', 'cq']]) > 1
 		# isPotentialClanPost = all(w in submission.title.lower() for w in ['recruit'])
 
-		m = re.compile('\[clan recruitment\s*-\s*(.+)\s*\].*').match(submission.title.lower())
+		m = re.compile('\[clan recruitment\s*-\s*([^\]]+)\s*\].*').match(submission.title.lower())
 		## Clan post with bad formatting
 		if isPotentialClanPost and not m:
 			self.tPrint(" - Bad formatting")
@@ -319,9 +319,11 @@ class SubmissionThread(RedditThread):
 
 				self.tPrint(" - Inserting clan " + clanCode)
 				database.insertClan(self.db, clanCode)
+				database.insertPost(self.db, submission.id, int(submission.created_utc), clanCode)
 			submission.reply(GOOD_REPLY_TEMPLATE)
-
-		database.insertPost(self.db, submission.id, int(submission.created_utc), m.group(1) if m else None)
+		else:
+			## Random post
+			database.insertPost(self.db, submission.id, int(submission.created_utc))
 
 	def run(self):
 		self.reddit = self.setupReddit()
