@@ -130,7 +130,7 @@ class MessageThread(RedditThread):
 				message.reply("Clan added successfully")
 		elif "update" in subject:
 			self.tPrint(' - Update request')
-			m = re.compile('.*\[(\w+)\].*').match(subject)
+			m = re.compile('.*\[(\w{5,6})\].*').match(subject)
 			if m:
 				clanCode = m.group(1)
 				## TODO: check author
