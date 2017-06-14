@@ -119,7 +119,7 @@ class MessageThread(RedditThread):
 		self.logMessage(message)
 
 		subject = message.subject.lower()
-		if subject == REDDITAPPID:
+		if subject == REDDITAPPID.lower():
 			self.tPrint(' - Override')
 			self.updateWiki()
 			self.tPrint(' - Update Successful')
