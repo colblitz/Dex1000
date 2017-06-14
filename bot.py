@@ -130,7 +130,7 @@ class MessageThread(RedditThread):
 				reply = POST_REPLY_TEMPLATE.format(POST_TITLE_FORMATTING)
 				submission.reply(reply)
 				submission.mod.remove()
-				self.db.removePost(submission.id)
+				database.removePost(self.db, submission.id)
 				self.tPrint(' - Post deleted')
 
 		elif subject == "username mention":
