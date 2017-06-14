@@ -181,9 +181,12 @@ class MessageThread(RedditThread):
 				## Could not find clan code, error
 				self.tPrint(' - Could not parse clan code')
 				message.reply(BAD_MESSAGE_TEMPLATE.format("Could not parse clan code"))
-			self.tPrint(" - Mark message as read")
-			message.mark_read()
-			database.markMessage(self.db, message.id, True)
+		else:
+			self.tPrint("Unknown format")
+		self.tPrint(" - Mark message as read")
+		message.mark_read()
+		database.markMessage(self.db, message.id, True)
+
 
 	def run(self):
 		self.reddit = self.setupReddit()
