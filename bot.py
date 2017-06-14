@@ -149,29 +149,33 @@ class MessageThread(RedditThread):
 					if key in CLAN_FIELDS_KEYS:
 						updateValues[CLAN_FIELDS[key]] = unicode('|'.join(parts[1:]))
 						if key in INT_FIELDS:
-							updateValues[CLAN_FIELDS[key]] = int('|'.join(parts[1:]))
+							try:
+								updateValues[CLAN_FIELDS[key]] = int('|'.join(parts[1:]))
+							except ValueError as e:
+								message.reply(BAD_MESSAGE_TEMPLATE.format("Please enter {} as a number".format(key)))
+								message.mark_read()
+								database.markMessage(self.db, message.id, True)
+								return
+
 				if updateValues:
 					try:
 						self.tPrint(" - " + unicode(updateValues))
 						database.updateClan(self.db, clanCode, updateValues)
 						if self.updateWiki():
-							# message.reply("Update successful")
+							message.reply("Update successful")
 							self.tPrint(' - Update successful')
 						else:
-							pass
-							# message.reply("Something went wrong - please try again later or PM /u/colblitz")
+							message.reply("Something went wrong - please try again later or PM /u/colblitz")
 					except Exception as e:
 						self.tPrint(" - Error updating clan {} with values {}".format(clanCode, str(updateValues)))
 						self.tPrint(e)
 
 				else:
 					## could not get any update values
-					pass
-					# message.reply(BAD_MESSAGE_TEMPLATE.format("Could not parse any update values"))
+					message.reply(BAD_MESSAGE_TEMPLATE.format("Could not parse any update values"))
 			else:
 				## Could not find clan code, error
-				pass
-				# message.reply(BAD_MESSAGE_TEMPLATE.format("Could not parse clan code"))
+				message.reply(BAD_MESSAGE_TEMPLATE.format("Could not parse clan code"))
 			message.mark_read()
 			database.markMessage(self.db, message.id, True)
 
