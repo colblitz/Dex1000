@@ -259,7 +259,7 @@ http://www.reddit.com/message/compose?to=Dex-1000&subject=update%20%5BREPLACECLA
 POST_TITLE_FORMATTING = "This post is being removed for being a recruitment post without the proper formatting. If this is not a recruitment post, please pm /u/colblitz."
 NO_CLAN_CODE = "This post is being removed for being a recruitment post without the proper formatting (could not find the clan code inside the brackets!). If this is not a recruitment post, please pm /u/colblitz."
 TOO_SOON = "This post is being removed for violating rule 3. Please wait {} or for {} more posts before posting another recruitment post for clan {}"
-CLAN_POST_DELAY = 60*60*24*4
+CLAN_POST_DELAY = 60*60*24*3
 
 def formatTime(t):
 	if t < 60:
@@ -291,7 +291,7 @@ class SubmissionThread(RedditThread):
 		isPotentialClanPost = sum([w in title for w in ['clan', 'recruit', 'cq']]) > 1
 		# isPotentialClanPost = all(w in submission.title.lower() for w in ['recruit'])
 
-		m = re.compile('\[clan recruitment\s*-\s*([^\]]+)\s*\].*').match(submission.title.lower())
+		m = re.compile('\[\s*clan recruitment\s*-\s*([^\]]+)\s*\].*').match(submission.title.lower())
 		## Clan post with bad formatting
 		if isPotentialClanPost and not m:
 			self.tPrint(" - Bad formatting")
