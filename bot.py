@@ -282,6 +282,10 @@ class SubmissionThread(RedditThread):
 			return
 		self.logSubmission(submission)
 
+		if str(submission.author.name.lower()) == "automoderator":
+			database.insertPost(self.db, submission.id, int(submission.created_utc))
+			return
+
 		if int(submission.created_utc) < 1497163543:
 			database.insertPost(self.db, submission.id, int(submission.created_utc))
 			return
