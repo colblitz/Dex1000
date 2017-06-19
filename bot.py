@@ -166,7 +166,7 @@ class MessageThread(RedditThread):
 							try:
 								updateValues[CLAN_FIELDS[key]] = int('|'.join(parts[1:]))
 							except ValueError as e:
-								self.tPrint("ValueError: " + str(e))
+								self.tPrint("ValueError: " + key + " " + str(e))
 								message.reply(BAD_MESSAGE_TEMPLATE.format("Please enter {} as a number".format(key)))
 								self.tPrint(" - Mark message as read")
 								message.mark_read()
