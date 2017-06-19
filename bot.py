@@ -318,9 +318,19 @@ class SubmissionThread(RedditThread):
 
 			for clanCode in clanCodes:
 				lastPost = database.getLastClanPost(self.db, clanCode)
+
+				## Check if last post was deleted
+				while lastPost[1] and self.reddit.submission(id = lastPost[1]).author is None:
+					self.tPrint(" - Last post was deleted: {}".format(lastPost[1]))
+					database.removePost(self.db, lastPost[1])
+					lastPost = database.getLastClanPost(self.db, clanCode)
+
 				timeSinceLastPost = postDate - lastPost[0] if lastPost[0] else sys.maxint
 				postsSinceLastPost = database.getPostsSince(self.db, lastPost[1]) if lastPost[1] else sys.maxint
-				self.tPrint(" - {} timeSinceLastPost: {} postsSinceLastPost {}".format(clanCode, timeSinceLastPost, postsSinceLastPost))
+				if lastPost[0]:
+					self.tPrint(" - {} timeSinceLastPost: {} postsSinceLastPost {}".format(clanCode, timeSinceLastPost, postsSinceLastPost))
+				else:
+					self.tPrint(" - new clan {}".format(clanCode))
 
 				## Check for posting too soon
 				if (lastPost and
