@@ -98,7 +98,7 @@ def userExists(reddit, user):
     return True
 
 def formatRedditName(name):
-	if name is None or name == '':
+	if name is None or name.strip() == '':
 		return ''
 	return '/u/{}'.format(name.strip())
 
