@@ -97,6 +97,11 @@ def userExists(reddit, user):
         return False
     return True
 
+def formatRedditName(name):
+	if name is None or name == '':
+		return ''
+	return '/u/{}'.format(name.strip())
+
 class MessageThread(RedditThread):
 	def logMessage(self, message):
 		self.tPrint("## M ## {} | {} | {}".format(
@@ -114,7 +119,7 @@ class MessageThread(RedditThread):
 
 			## TODO: clean this up, add /u/ for reddit names?
 			clanInfo = database.getClanInformation(self.db)
-			rearranged = [[i[4], i[0], i[3], i[1], i[2], '/u/' + unicode(i[5]), i[6], i[7], i[8]] for i in clanInfo]
+			rearranged = [[i[4], i[0], i[3], i[1], i[2], formatRedditName(i[5]), i[6], i[7], i[8]] for i in clanInfo]
 			cleaned = [['' if v is None else unicode(v) for v in i] for i in rearranged]
 			rows = [CLAN_DIRECTORY_ROW.format(*i) for i in cleaned]
 			newDirectory = CLAN_DIRECTORY.format(unicode(''.join(rows)))
