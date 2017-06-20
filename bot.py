@@ -8,6 +8,8 @@ import sys
 import config
 import database
 
+import prawcore
+
 REDDITUSERNAME     = config.redditUsername
 REDDITPASSWORD     = config.redditPassword
 REDDITUSERAGENT    = config.redditUserAgent
@@ -78,7 +80,22 @@ Clan Name | Code | Rank | CQ | Open | Reddit Contact | Other Contact | Requireme
 ''')
 CLAN_DIRECTORY_ROW = unicode("{} | {} | {} | {} | {} | {} | {} | {} | {} \n")
 
+DEFAULT_VALUES = [
+	'Username',
+	'Discord link or something',
+	'Name of clan',
+	'These are a bunch of requirements, try to keep this to one line',
+	'This is a description, try to keep this to one line'
+]
+
 SUBREDDIT = 'TapTitans2'
+
+def userExists(reddit, user):
+    try:
+        reddit.redditor(user).fullname
+    except prawcore.exceptions.NotFound:
+        return False
+    return True
 
 class MessageThread(RedditThread):
 	def logMessage(self, message):
@@ -97,7 +114,7 @@ class MessageThread(RedditThread):
 
 			## TODO: clean this up, add /u/ for reddit names?
 			clanInfo = database.getClanInformation(self.db)
-			rearranged = [[i[4], i[0], i[3], i[1], i[2], i[5], i[6], i[7], i[8]] for i in clanInfo]
+			rearranged = [[i[4], i[0], i[3], i[1], i[2], '/u/' + unicode(i[5]), i[6], i[7], i[8]] for i in clanInfo]
 			cleaned = [['' if v is None else unicode(v) for v in i] for i in rearranged]
 			rows = [CLAN_DIRECTORY_ROW.format(*i) for i in cleaned]
 			newDirectory = CLAN_DIRECTORY.format(unicode(''.join(rows)))
@@ -156,22 +173,37 @@ class MessageThread(RedditThread):
 
 				## get fields
 				updateValues = {}
+				errors = []
 				for line in message.body.split('\n'):
 					parts = line.split('|')
 					key = parts[0].strip().lower()
 					## TODO: make this better - individual regexes?
 					if key in CLAN_FIELDS_KEYS:
-						updateValues[CLAN_FIELDS[key]] = unicode('|'.join(parts[1:]))
+						value = '|'.join(parts[1:])
+
+						## Ignore values if they didn't change value
+						if value in DEFAULT_VALUES:
+							continue
+
+						updateValues[CLAN_FIELDS[key]] = unicode(value)
 						if key in INT_FIELDS:
 							try:
-								updateValues[CLAN_FIELDS[key]] = int('|'.join(parts[1:]))
+								updateValues[CLAN_FIELDS[key]] = int(value)
 							except ValueError as e:
-								self.tPrint("ValueError: " + key + " " + str(e))
-								message.reply(BAD_MESSAGE_TEMPLATE.format("Please enter {} as a number".format(key)))
-								self.tPrint(" - Mark message as read")
-								message.mark_read()
-								database.markMessage(self.db, message.id, True)
-								return
+								self.tPrint(" - ValueError: " + key + " " + str(e))
+								errors.append("Please enter {} as a number".format(key))
+								continue
+						elif key == "redditcontact":
+							if not userExists(value):
+								self.tPrint(" - Redditor doesn't exist: " + unicode(value))
+								errors.append("Please enter a valid Reddit username")
+								continue
+				if len(errors) > 0:
+					message.reply(BAD_MESSAGE_TEMPLATE.format('\n\n'.join(errors)))
+					self.tPrint(" - Mark message as read")
+					message.mark_read()
+					database.markMessage(self.db, message.id, True)
+					return
 
 				if updateValues:
 					try:
