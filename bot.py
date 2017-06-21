@@ -199,7 +199,7 @@ class MessageThread(RedditThread):
 								errors.append("Please enter {} as a number".format(key))
 								continue
 						elif key == "redditcontact":
-							if not userExists(value):
+							if not userExists(self.reddit, value):
 								self.tPrint(" - Redditor doesn't exist: " + unicode(value))
 								errors.append("Please enter a valid Reddit username")
 								continue
