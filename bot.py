@@ -329,7 +329,7 @@ class SubmissionThread(RedditThread):
 
 		## TODO: make this better
 		title = submission.title.lower()
-		isPotentialClanPost = sum([w in title for w in ['clan', 'recruit', 'cq']]) > 1
+		isPotentialClanPost = sum([w in title for w in ['clan', 'recruiting', 'cq']]) > 1
 		# isPotentialClanPost = all(w in submission.title.lower() for w in ['recruit'])
 
 		m = re.compile('\[\s*clan recruitment\s*-\s*([^\]]+)\s*\].*').match(submission.title.lower())
