@@ -186,7 +186,7 @@ class MessageThread(RedditThread):
 					key = parts[0].strip().lower()
 					## TODO: make this better - individual regexes?
 					if key in CLAN_FIELDS_KEYS:
-						value = '|'.join(parts[1:])
+						value = '|'.join(parts[1:]).strip()
 
 						## Ignore values if they didn't change value
 						if value in DEFAULT_VALUES:
@@ -201,8 +201,8 @@ class MessageThread(RedditThread):
 								errors.append("Please enter {} as a number".format(key))
 								continue
 						elif key == "redditcontact":
-							if value.startswith("/u/"):
-								value = value.replace("/u/", "")
+							if value.strip().startswith("/u/"):
+								value = value.strip().replace("/u/", "")
 
 							try:
 								self.reddit.redditor(value).fullname
@@ -210,8 +210,9 @@ class MessageThread(RedditThread):
 								self.tPrint(" - Redditor doesn't exist: " + unicode(value))
 								errors.append("Please enter a valid Reddit username")
 								continue
-							except:
+							except as e:
 								self.tPrint(" - Error looking up Redditor: " + unicode(value))
+								self.tPrint(e)
 								errors.append("Error looking up Reddit username")
 								continue
 				if len(errors) > 0:
