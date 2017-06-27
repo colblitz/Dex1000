@@ -210,7 +210,7 @@ class MessageThread(RedditThread):
 								self.tPrint(" - Redditor doesn't exist: " + unicode(value))
 								errors.append("Please enter a valid Reddit username")
 								continue
-							except as e:
+							except Exception as e:
 								self.tPrint(" - Error looking up Redditor: " + unicode(value))
 								self.tPrint(e)
 								errors.append("Error looking up Reddit username")
