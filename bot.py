@@ -203,6 +203,7 @@ class MessageThread(RedditThread):
 						elif key == "redditcontact":
 							if value.strip().startswith("/u/"):
 								value = value.strip().replace("/u/", "")
+								updateValues[CLAN_FIELDS[key]] = unicode(value)
 
 							try:
 								self.reddit.redditor(value).fullname
