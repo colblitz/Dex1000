@@ -91,11 +91,13 @@ DEFAULT_VALUES = [
 SUBREDDIT = 'TapTitans2'
 
 def userExists(reddit, user):
-    try:
-        reddit.redditor(user).fullname
-    except prawcore.exceptions.NotFound:
-        return False
-    return True
+	try:
+		reddit.redditor(user).fullname
+	except prawcore.exceptions.NotFound:
+		return False
+	except:
+		return False
+	return True
 
 def formatRedditName(name):
 	if name is None or name.strip() == '':
@@ -199,9 +201,18 @@ class MessageThread(RedditThread):
 								errors.append("Please enter {} as a number".format(key))
 								continue
 						elif key == "redditcontact":
-							if not userExists(self.reddit, value):
+							if value.startswith("/u/"):
+								value = value.replace("/u/", "")
+
+							try:
+								self.reddit.redditor(value).fullname
+							except prawcore.exceptions.NotFound:
 								self.tPrint(" - Redditor doesn't exist: " + unicode(value))
 								errors.append("Please enter a valid Reddit username")
+								continue
+							except:
+								self.tPrint(" - Error looking up Redditor: " + unicode(value))
+								errors.append("Error looking up Reddit username")
 								continue
 				if len(errors) > 0:
 					message.reply(BAD_MESSAGE_TEMPLATE.format('\n\n'.join(errors)))
@@ -416,4 +427,4 @@ if __name__ == '__main__':
 	submissionThread.start()
 
 	while True:
-	    time.sleep(1)
+		time.sleep(1)
