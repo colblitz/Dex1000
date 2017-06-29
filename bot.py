@@ -165,6 +165,7 @@ class MessageThread(RedditThread):
 						comment.mod.remove()
 
 				submission.mod.approve()
+				database.insertPost(self.db, submission.id, int(submission.created_utc))
 				return
 
 		elif subject == "username mention":
