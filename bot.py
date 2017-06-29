@@ -157,8 +157,8 @@ class MessageThread(RedditThread):
 				database.removePost(self.db, submission.id)
 				self.tPrint(' - Post deleted')
 			if "allow" in subject:
-				self.tPrint(' - Approving post ' + submission.id)
 				submission = self.reddit.submission(id = message.body)
+				self.tPrint(' - Approving post ' + submission.id)
 
 				for comment in submission.comments:
 					if comment.author.name == "Dex-1000":
