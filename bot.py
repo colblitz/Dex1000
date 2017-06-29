@@ -143,7 +143,7 @@ class MessageThread(RedditThread):
 		self.logMessage(message)
 
 		subject = message.subject.lower()
-		if REDDITAPPID.lower() in subject:
+		if message.author.name.lower() == 'colblitz':
 			self.tPrint(' - Override')
 			if "update" in subject:
 				self.updateWiki()
@@ -156,6 +156,16 @@ class MessageThread(RedditThread):
 				submission.mod.remove()
 				database.removePost(self.db, submission.id)
 				self.tPrint(' - Post deleted')
+			if "allow" in subject:
+				self.tPrint(' - Approving post ' + submission.id)
+				submission = self.reddit.submission(id = message.body)
+
+				for comment in submission.comments:
+					if comment.author.name == "Dex-1000":
+						comment.mod.remove()
+
+				submission.mod.approve()
+				return
 
 		elif subject == "username mention":
 			self.tPrint(' - Username mention')
