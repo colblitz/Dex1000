@@ -162,7 +162,8 @@ class MessageThread(RedditThread):
 
 				for comment in submission.comments:
 					if comment.author.name == "Dex-1000":
-						comment.mod.remove()
+						comment.delete()
+						# comment.mod.remove()
 
 				submission.mod.approve()
 				database.insertPost(self.db, submission.id, int(submission.created_utc))
