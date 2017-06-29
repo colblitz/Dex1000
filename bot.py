@@ -166,6 +166,7 @@ class MessageThread(RedditThread):
 
 				submission.mod.approve()
 				database.insertPost(self.db, submission.id, int(submission.created_utc))
+				self.tPrint(' - Post approved')
 
 		elif subject == "username mention":
 			self.tPrint(' - Username mention')
