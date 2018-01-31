@@ -45,7 +45,7 @@ class RedditThread(threading.Thread):
 SIGNATURE = '''
 ---
 
-^^Beep ^^boop, ^^I'm ^^a ^^TapTitans2 ^^bot! ^^\([Github](https://github.com/colblitz/Dex1000)) ^^Please ^^PM ^^/u/colblitz ^^with ^^any ^^questions.
+^^Beep ^^boop, ^^I'm ^^a ^^TapTitans2 ^^bot! ^^\([Github](https://github.com/colblitz/Dex1000)) ^^Please ^^PM ^^colblitz ^^with ^^any ^^questions.
 '''
 
 BAD_MESSAGE_TEMPLATE = '''
