@@ -313,7 +313,7 @@ Recruitment posts should follow the following rules:
 ''' + SIGNATURE
 
 GOOD_REPLY_TEMPLATE = '''
-This looks like a clan recruitment post - don't forget to flair your post with the "Clan" flair! Also, if you need to update your clan's information in the [Clan Directory](https://www.reddit.com/r/TapTitans2/wiki/clan_directory), send me a message with this prepopulated form (replace the clan code and remove unnecessary lines): [click](
+This looks like a clan recruitment post - don't forget to flair your post with the "Clan" flair! (*THIS IS JUST A REMINDER* - if you've already flaired, there was probably a delay between that and the bot receiving the submission, so good job, you don't have to do anything.) Also, if you need to update your clan's information in the [Clan Directory](https://www.reddit.com/r/TapTitans2/wiki/clan_directory), send me a message with this prepopulated form (replace the clan code and remove unnecessary lines): [click](
 http://www.reddit.com/message/compose?to=Dex-1000&subject=update%20%5BREPLACECLANCODE%5D&message=clanQuest%20%7C%201%0A%0AopenPositions%20%7C%201%0A%0Arank%20%7C%201%0A%0Aname%20%7C%20Name%20of%20clan%0A%0AredditContact%20%7C%20Username%0A%0AotherContact%20%7C%20Discord%20link%20or%20something%0A%0Arequirements%20%7C%20These%20are%20a%20bunch%20of%20requirements%2C%20try%20to%20keep%20this%20to%20one%20line%0A%0Adescription%20%7C%20This%20is%20a%20description%2C%20try%20to%20keep%20this%20to%20one%20line)
 
 ''' + SIGNATURE
