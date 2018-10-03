@@ -84,7 +84,7 @@ CLAN_DIRECTORY = unicode('''
 
 ----
 
-* **Clans are listed in order of decreasing CQ**
+* **Clans are listed in order of most to least recently updated**
 * **Clans without a name will not be displayed**
 * **Clans that haven't been updated in more than 30 days will be removed**
 * **Dates are in YYYY-MM-DD**
