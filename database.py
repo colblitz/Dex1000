@@ -117,7 +117,7 @@ def updateClan(db, clanCode, date, args={}):
 	db.commit()
 
 def getClanInformation(db):
-	return query_db(db, "SELECT * FROM clans WHERE name IS NOT NULL ORDER BY clanQuest DESC")
+	return query_db(db, "SELECT * FROM clans WHERE name IS NOT NULL ORDER BY lastUpdated DESC")
 
 def cleanUpClans(db, thresholdDate):
 	# db.cursor().execute("DELETE FROM clans WHERE clanQuest IS NOT NULL AND name IS NULL")
