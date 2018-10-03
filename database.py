@@ -19,7 +19,8 @@ CREATE TABLE clans (
 	redditContact text,
 	otherContact text,
 	requirements text,
-	description text
+	description text,
+	lastUpdated text
 );
 CREATE TABLE posts (
 	postId text not null,
@@ -108,14 +109,20 @@ def insertClan(db, clanCode):
 	db.cursor().execute("INSERT OR IGNORE INTO clans(clanCode) VALUES (?)", (clanCode,))
 	db.commit()
 
-def updateClan(db, clanCode, args={}):
+def updateClan(db, clanCode, date, args={}):
 	db.cursor().execute(
 		"UPDATE clans SET " + ', '.join(key + ' = ?' for key in args) + " WHERE clanCode = ?",
 		args.values() + [clanCode])
+	db.cursor().execute("UPDATE clans SET lastUpdated = ? WHERE clanCode = ?", (date, clanCode))
 	db.commit()
 
 def getClanInformation(db):
 	return query_db(db, "SELECT * FROM clans WHERE name IS NOT NULL ORDER BY clanQuest DESC")
+
+def cleanUpClans(db, thresholdDate):
+	# db.cursor().execute("DELETE FROM clans WHERE clanQuest IS NOT NULL AND name IS NULL")
+	db.cursor().execute("DELETE FROM clans WHERE lastUpdated < ?", (thresholdDate,))
+	db.commit()
 
 def insertClanPoster(db, clanCode, username):
 	db.cursor().execute("INSERT INTO clanPosters VALUES (?, ?)", (clanCode, username))
