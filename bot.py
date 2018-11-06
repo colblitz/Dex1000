@@ -150,7 +150,7 @@ class MessageThread(RedditThread):
 		self.tPrint(unicode("## M ## {} | {} | {}").format(
 			message.id,
 			message.author,
-			message.subject))
+			unicode(message.subject)))
 
 	def updateWiki(self):
 		self.tPrint(" - Attempt to update wiki")
