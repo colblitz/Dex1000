@@ -28,7 +28,7 @@ class RedditThread(threading.Thread):
 	def tPrint(self, s):
 		t = time.strftime("%H:%M:%S", time.gmtime())
 		m = u"[{} {:17}] {}\n"
-		m = m.format(t, self.getName(), unicode(s))
+		m = m.format(t, self.getName(), unicode(s)).encode('utf-8')
 		sys.stdout.write(m)
 		sys.stdout.flush()
 
