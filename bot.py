@@ -147,10 +147,10 @@ def generateDirectory(db):
 
 class MessageThread(RedditThread):
 	def logMessage(self, message):
-		self.tPrint("## M ## {} | {} | {}".format(
+		self.tPrint(unicode("## M ## {} | {} | {}").format(
 			message.id,
 			message.author,
-			unicode(message.subject)))
+			message.subject))
 
 	def updateWiki(self):
 		self.tPrint(" - Attempt to update wiki")
