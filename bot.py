@@ -371,11 +371,11 @@ def formatTime(t):
 
 class SubmissionThread(RedditThread):
 	def logSubmission(self, submission):
-		self.tPrint("## S ## {} | {} | {} | {}".format(
+		self.tPrint(unicode("## S ## {} | {} | {} | {}").format(
 			submission.id,
 			int(submission.created_utc),
 			submission.author,
-			submission.title.encode('utf-8')))
+			unicode(submission.title)))
 
 	def processSubmission(self, submission):
 		if database.postExists(self.db, submission.id):
