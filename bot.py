@@ -5,7 +5,7 @@ import re
 import threading
 import sys
 
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 import config
 import database
@@ -275,8 +275,9 @@ class MessageThread(RedditThread):
 				if updateValues:
 					try:
 						self.tPrint(" - " + unicode(updateValues))
-						today = date.today().isoformat()
-						database.updateClan(self.db, clanCode, today, updateValues)
+						rightnow = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+						#today = date.today().isoformat()
+						database.updateClan(self.db, clanCode, rightnow, updateValues)
 						if self.updateWiki():
 							message.reply("Update successful")
 							self.tPrint(' - Update successful')
